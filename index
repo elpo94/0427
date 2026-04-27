@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    @font-face {
+      font-family: 'Cafe24Ssurround';
+      src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/Cafe24Ssurround.woff') format('woff');
+    }
+
+    body {
+      font-family: 'Cafe24Ssurround', sans-serif;
+      background-color: #f0faff;
+      display: flex;
+      justify-content: center;
+      padding: 30px 10px;
+      margin: 0;
+      color: #333;
+    }
+
+    .container {
+      background-color: white;
+      padding: 40px 30px;
+      border-radius: 25px;
+      box-shadow: 0 10px 40px rgba(0, 100, 255, 0.1);
+      width: 100%;
+      max-width: 480px;
+    }
+
+    h2 { color: #007bff; text-align: center; margin-bottom: 30px; }
+
+    .input-group { margin-bottom: 18px; }
+    label { display: block; margin-bottom: 8px; color: #555; font-size: 0.9em; }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 14px;
+      border: 2px solid #eef2ff;
+      border-radius: 12px;
+      box-sizing: border-box;
+      font-family: inherit;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    input:focus, textarea:focus { border-color: #007bff; background-color: #fcfdff; }
+    textarea { height: 130px; resize: none; }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 18px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: 'Cafe24Ssurround';
+      font-size: 1.2em;
+      width: 100%;
+      margin-top: 15px;
+      transition: 0.3s;
+    }
+
+    button:hover { background-color: #0056b3; transform: translateY(-2px); }
+    button:disabled { background-color: #ccc; cursor: not-allowed; }
+
+    #loading { display: none; text-align: center; margin-top: 25px; color: #007bff; }
+    
+    #resultBox {
+      display: none;
+      margin-top: 30px;
+      padding: 25px;
+      background-color: #f5faff;
+      border-left: 6px solid #007bff;
+      border-radius: 15px;
+      line-height: 1.8;
+      white-space: pre-wrap;
+    }
+
+    .feedback-title { font-weight: bold; color: #0056b3; display: block; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>오늘의 마음 상담소 💙</h2>
+  
+  <div class="input-group">
+    <label>성함</label>
+    <input type="text" id="name" placeholder="이름을 알려주세요">
+  </div>
+
+  <div class="input-group">
+    <label>나의 MBTI</label>
+    <select id="mbti">
+      <option value="ISTJ">ISTJ</option><option value="ISFJ">ISFJ</option>
+      <option value="INFJ">INFJ</option><option value="INTJ">INTJ</option>
+      <option value="ISTP">ISTP</option><option value="ISFP">ISFP</option>
+      <option value="INFP">INFP</option><option value="INTP">INTP</option>
+      <option value="ESTP">ESTP</option><option value="ESFP">ESFP</option>
+      <option value="ENFP">ENFP</option><option value="ENTP">ENTP</option>
+      <option value="ESTJ">ESTJ</option><option value="ESFJ">ESFJ</option>
+      <option value="ENFJ">ENFJ</option><option value="ENTJ">ENTJ</option>
+    </select>
+  </div>
+
+  <div class="input-group">
+    <label>오늘의 감정</label>
+    <input type="text" id="emotion" placeholder="예: 무기력함, 기쁨, 속상함">
+  </div>
+
+  <div class="input-group">
+    <label>무슨 일이 있었나요? (자세히 적어주세요)</label>
+    <textarea id="reason" placeholder="상담 선생님께 이야기하듯 솔직하게 적어보세요."></textarea>
+  </div>
+
+  <button id="submitBtn" onclick="submitToAI()">AI 마음 처방전 받기</button>
+
+  <div id="loading">AI 상담 선생님이 분석 중입니다... 잠시만요! ⏳</div>
+  
+  <div id="resultBox">
+    <span class="feedback-title">📋 나를 위한 마음 처방전</span>
+    <div id="feedbackText"></div>
+  </div>
+</div>
+
+<script>
+  function submitToAI() {
+    const name = document.getElementById('name').value;
+    const mbti = document.getElementById('mbti').value;
+    const emotion = document.getElementById('emotion').value;
+    const reason = document.getElementById('reason').value;
+
+    if(!name || !emotion || !reason) {
+      alert("모든 항목을 입력해 주셔야 정확한 상담이 가능해요!");
+      return;
+    }
+
+    const btn = document.getElementById('submitBtn');
+    const loading = document.getElementById('loading');
+    const resultBox = document.getElementById('resultBox');
+    
+    btn.disabled = true;
+    loading.style.display = 'block';
+    resultBox.style.display = 'none';
+
+    google.script.run
+      .withSuccessHandler(function(feedback) {
+        loading.style.display = 'none';
+        btn.disabled = false;
+        resultBox.style.display = 'block';
+        document.getElementById('feedbackText').innerText = feedback;
+      })
+      .processStudentData({
+        name: name,
+        mbti: mbti,
+        emotion: emotion,
+        reason: reason
+      });
+  }
+</script>
+
+</body>
+</html>
